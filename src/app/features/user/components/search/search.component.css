@@ -1,0 +1,263 @@
+/* Search component styles */
+
+/* AI Search Loader Styles */
+.ai-search-loader {
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.05) 0%, rgba(184, 64, 5, 0.05) 100%);
+  border-radius: 1rem;
+  border: 1px solid rgba(217, 119, 6, 0.1);
+}
+
+.ai-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* AI Icon with Orbits */
+.ai-icon-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-icon {
+  width: 60px;
+  height: 60px;
+  color: var(--color-primary-600);
+  animation: aiIconPulse 2s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+
+.ai-pulse {
+  animation: aiPulseDot 1.5s ease-in-out infinite;
+}
+
+@keyframes aiIconPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes aiPulseDot {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Orbiting Circles */
+.ai-orbits {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+.orbit {
+  position: absolute;
+  border: 2px solid;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-color: var(--color-primary-400);
+  opacity: 0.3;
+}
+
+.orbit-1 {
+  width: 70px;
+  height: 70px;
+  animation: orbitRotate 3s linear infinite;
+  border-color: var(--color-primary-500);
+}
+
+.orbit-2 {
+  width: 90px;
+  height: 90px;
+  animation: orbitRotate 4s linear infinite reverse;
+  border-color: var(--color-primary-400);
+}
+
+.orbit-3 {
+  width: 110px;
+  height: 110px;
+  animation: orbitRotate 5s linear infinite;
+  border-color: var(--color-primary-300);
+  opacity: 0.2;
+}
+
+@keyframes orbitRotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Loading Text */
+.ai-loading-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-primary-700);
+}
+
+.ai-text-line {
+  display: inline-block;
+}
+
+.ai-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.ai-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary-600);
+  animation: aiDotBounce 1.4s ease-in-out infinite;
+}
+
+.ai-dot:nth-child(1) { animation-delay: 0s; }
+.ai-dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes aiDotBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* Progress Steps */
+.ai-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.ai-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.ai-step.active {
+  background: rgba(217, 119, 6, 0.1);
+  opacity: 1;
+  animation: stepPulse 2s ease-in-out infinite;
+}
+
+@keyframes stepPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0);
+  }
+}
+
+.step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-600);
+  animation: stepIconBounce 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.ai-step.active .step-icon {
+  animation: stepIconBounce 1s ease-in-out infinite;
+  color: var(--color-primary-700);
+}
+
+.ai-step:not(.active) .step-icon {
+  color: var(--color-gray-400);
+  opacity: 0.6;
+}
+
+@keyframes stepIconBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.step-text {
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  font-weight: 500;
+}
+
+.ai-step.active .step-text {
+  color: var(--color-primary-700);
+  font-weight: 600;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .ai-icon-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ai-icon {
+    width: 45px;
+    height: 45px;
+  }
+
+  .orbit-1 {
+    width: 55px;
+    height: 55px;
+  }
+
+  .orbit-2 {
+    width: 70px;
+    height: 70px;
+  }
+
+  .orbit-3 {
+    width: 85px;
+    height: 85px;
+  }
+
+  .ai-loading-text {
+    font-size: 1rem;
+  }
+
+  .ai-steps {
+    max-width: 100%;
+  }
+}

@@ -1,0 +1,94 @@
+<div>
+  <!-- Main Content -->
+  <main class="container-main">
+    <div *ngIf="isLoading" class="text-center py-12">
+      <div class="spinner mx-auto"></div>
+      <p class="mt-4 text-muted">{{ 'common.loading' | translate }}</p>
+    </div>
+
+    <div *ngIf="!isLoading && stats" class="grid-responsive">
+      <!-- Total Images Card -->
+      <div class="card-lg">
+        <div class="flex-between">
+          <div class="flex-1">
+            <p class="text-muted mb-1">{{ 'admin.totalImages' | translate }}</p>
+            <p class="text-2xl md:text-3xl font-bold text-gray-800">{{ stats.total_images || 0 }}</p>
+          </div>
+          <app-icon name="camera" size="28" color="--color-primary-500" class="md:w-8 md:h-8 flex-shrink-0"></app-icon>
+        </div>
+      </div>
+
+      <!-- Total Users Card -->
+      <div class="card-lg">
+        <div class="flex-between">
+          <div class="flex-1">
+            <p class="text-muted mb-1">{{ 'admin.totalUsers' | translate }}</p>
+            <p class="text-2xl md:text-3xl font-bold text-gray-800">{{ stats.total_users || 0 }}</p>
+          </div>
+          <app-icon name="users" size="28" color="--color-primary-500" class="md:w-8 md:h-8 flex-shrink-0"></app-icon>
+        </div>
+      </div>
+
+      <!-- Images with Embeddings Card -->
+      <!-- <div class="card-lg">
+        <div class="flex-between">
+          <div class="flex-1">
+            <p class="text-muted mb-1">{{ 'admin.withEmbeddings' | translate }}</p>
+            <p class="text-2xl md:text-3xl font-bold text-gray-800">{{ stats.images_with_embeddings || 0 }}</p>
+          </div>
+          <app-icon name="search" size="28" color="--color-primary-500" class="md:w-8 md:h-8 flex-shrink-0"></app-icon>
+        </div>
+      </div> -->
+
+      <!-- Vector DB Count Card -->
+      <!-- <div class="card-lg sm:col-span-2 lg:col-span-1">
+        <div class="flex-between">
+          <div class="flex-1">
+            <p class="text-muted mb-1">{{ 'admin.vectorDbEntries' | translate }}</p>
+            <p class="text-2xl md:text-3xl font-bold text-gray-800">{{ stats.vector_db_count || 0 }}</p>
+          </div>
+          <app-icon name="database" size="28" color="--color-primary-500" class="md:w-8 md:h-8 flex-shrink-0"></app-icon>
+        </div>
+      </div> -->
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8 card-lg">
+      <h2 class="text-heading">{{ 'admin.quickActions' | translate }}</h2>
+      <div class="grid-responsive">
+        <a
+          routerLink="/admin/upload"
+          class="block p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition text-center touch-target"
+        >
+          <app-icon name="upload" size="28" color="--color-primary-600" class="mb-2"></app-icon>
+          <div class="font-semibold text-gray-800">{{ 'admin.uploadImages' | translate }}</div>
+          <div class="text-muted mt-1">{{ 'admin.bulkUpload' | translate }}</div>
+        </a>
+        <a
+          routerLink="/admin/manage"
+          class="block p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition text-center touch-target"
+        >
+          <app-icon name="settings" size="28" color="--color-primary-600" class="mb-2"></app-icon>
+          <div class="font-semibold text-gray-800">{{ 'admin.manageImages' | translate }}</div>
+          <div class="text-muted mt-1">{{ 'admin.editMetadata' | translate }}</div>
+        </a>
+        <a
+          routerLink="/admin/users"
+          class="block p-3 md:p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 active:bg-primary-100 transition text-center touch-target"
+        >
+          <app-icon name="users" size="24" color="--color-primary-600" class="md:w-7 md:h-7 mb-2 mx-auto"></app-icon>
+          <div class="font-semibold text-gray-800 text-sm md:text-base">{{ 'admin.manageUsers' | translate }}</div>
+          <div class="text-muted mt-1">{{ 'admin.createAndManageUsers' | translate }}</div>
+        </a>
+        <a
+          routerLink="/admin/search"
+          class="block p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition text-center touch-target"
+        >
+          <app-icon name="search" size="28" color="--color-primary-600" class="mb-2"></app-icon>
+          <div class="font-semibold text-gray-800">{{ 'admin.imageSearch' | translate }}</div>
+          <div class="text-muted mt-1">{{ 'admin.expertSearch' | translate }}</div>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>

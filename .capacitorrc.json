@@ -1,0 +1,8 @@
+{
+  "appId": "com.expertidentification.app",
+  "appName": "Expert Identification",
+  "webDir": "dist/expert-identification",
+  "server": {
+    "androidScheme": "https"
+  }
+}

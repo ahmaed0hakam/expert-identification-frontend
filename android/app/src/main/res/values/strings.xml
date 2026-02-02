@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EOD Jordan</string>
+    <string name="title_activity_main">EOD Jordan</string>
+    <string name="package_name">com.expertidentification.app</string>
+    <string name="custom_url_scheme">com.expertidentification.app</string>
+</resources>

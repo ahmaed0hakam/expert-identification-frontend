@@ -1,0 +1,290 @@
+<div>
+  <!-- Main Content -->
+  <main class="container-content">
+    <div class="card-lg mb-6">
+      <h2 class="text-heading">{{ 'admin.selectImages' | translate }}</h2>
+      
+      <div class="mb-4">
+        <input
+          type="file"
+          multiple
+          [accept]="imageAcceptAttribute"
+          (change)="onFilesSelected($event)"
+          class="hidden"
+          id="file-input"
+        />
+        <label
+          for="file-input"
+          class="btn-secondary block w-full text-center cursor-pointer border-2 border-dashed border-gray-300"
+        >
+          <app-icon name="folder" size="20" class="flex-shrink-0"></app-icon>
+          <span class="text-sm md:text-base">{{ 'admin.selectMultiple' | translate }}</span>
+        </label>
+      </div>
+
+      <!-- Folder Selection -->
+      <div class="mb-6 p-4 rounded-lg" style="background-color: var(--color-gray-50); border: 1px solid var(--color-gray-200);">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-800">{{ 'admin.selectFolder' | translate }}</h3>
+            <p class="text-xs text-gray-600 mt-1">{{ 'admin.selectFolderDesc' | translate }}</p>
+          </div>
+          <!-- <button
+            (click)="showCreateFolderModal.set(true)"
+            class="btn-primary btn-primary-sm text-xs flex items-center gap-1"
+          >
+            <app-icon name="plus" size="14"></app-icon>
+            <span>{{ 'admin.createFolder' | translate }}</span>
+          </button> -->
+        </div>
+        <app-dropdown
+          [options]="folderOptions()"
+          [selectedValue]="selectedFolderId()"
+          [placeholder]="('admin.noFolder' | translate) + ' (' + ('common.optional' | translate) + ')'"
+          [disabled]="isLoadingFolders()"
+          [showClear]="true"
+          (selectionChange)="onFolderSelected($event)"
+        ></app-dropdown>
+      </div>
+
+      <!-- Default Metadata (Optional) -->
+      <div *ngIf="hasFiles()" class="mb-6 p-4 rounded-lg" style="background-color: var(--color-primary-50); border: 1px solid var(--color-primary-200);">
+        <h3 class="text-sm font-semibold mb-3" style="color: var(--color-primary-800);">{{ 'admin.defaultMetadata' | translate }}</h3>
+        <p class="text-xs mb-3" style="color: var(--color-primary-600);">{{ 'admin.defaultMetadataDesc' | translate }}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.defaultTitle' | translate }}</label>
+            <input
+              type="text"
+              [value]="defaultTitle()"
+              (input)="defaultTitle.set($any($event.target).value)"
+              [placeholder]="'admin.enterTitle' | translate"
+              class="input input-sm w-full"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.defaultDescription' | translate }}</label>
+            <input
+              type="text"
+              [value]="defaultDescription()"
+              (input)="defaultDescription.set($any($event.target).value)"
+              [placeholder]="'admin.enterDescription' | translate"
+              class="input input-sm w-full"
+            />
+          </div>
+          <div class="sm:col-span-2 md:col-span-1">
+            <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.defaultCategory' | translate }}</label>
+            <input
+              type="text"
+              [value]="defaultCategory()"
+              (input)="defaultCategory.set($any($event.target).value)"
+              [placeholder]="'admin.enterCategory' | translate"
+              class="input input-sm w-full"
+            />
+          </div>
+        </div>
+        <button
+          (click)="applyDefaultsToAll()"
+          class="btn-primary btn-primary-sm text-xs"
+        >
+          {{ 'admin.applyToAll' | translate }}
+        </button>
+      </div>
+
+      <!-- Selected Files List with Metadata -->
+      <div *ngIf="hasFiles()" class="mb-4">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">
+          {{ 'admin.selectedFiles' | translate }} ({{ selectedFiles().length }}) - {{ 'admin.enterMetadata' | translate }}
+        </h3>
+        <div class="space-y-4 max-h-96 overflow-y-auto">
+          <div
+            *ngFor="let item of selectedFiles(); let i = index; trackBy: trackByIndex"
+            class="bg-gray-50 p-3 md:p-4 rounded-lg border border-gray-200"
+          >
+            <div class="flex items-start justify-between mb-3 gap-2">
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-gray-800 break-words block">{{ item.file.name }}</span>
+                <span class="text-xs text-gray-500 block mt-1">
+                  ({{ (item.file.size / 1024 / 1024).toFixed(2) }} MB)
+                </span>
+                <!-- Image Preview -->
+                <div *ngIf="item.previewUrl" class="mt-2">
+                  <img
+                    [src]="item.previewUrl"
+                    [alt]="item.title"
+                    class="w-24 h-24 object-cover rounded border border-gray-300"
+                  />
+                </div>
+              </div>
+              <button
+                (click)="removeFile(i)"
+                class="btn-danger btn-danger-sm rounded-full w-8 h-8 p-0 flex-shrink-0 flex items-center justify-center"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <app-icon name="trash" size="14"></app-icon>
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.title' | translate }} *</label>
+                <input
+                  type="text"
+                  [value]="item.title"
+                  (input)="updateFileTitle(i, $any($event.target).value)"
+                  [placeholder]="'admin.enterTitle' | translate"
+                  required
+                  class="input input-sm w-full"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.description' | translate }}</label>
+                <input
+                  type="text"
+                  [value]="item.description"
+                  (input)="updateFileDescription(i, $any($event.target).value)"
+                  [placeholder]="'admin.enterDescription' | translate"
+                  class="input input-sm w-full"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.category' | translate }}</label>
+                <input
+                  type="text"
+                  [value]="item.category"
+                  (input)="updateFileCategory(i, $any($event.target).value)"
+                  [placeholder]="'admin.enterCategory' | translate"
+                  class="input input-sm w-full"
+                />
+              </div>
+            </div>
+            
+            <!-- Catalog File Upload -->
+            <div class="mt-3 pt-3 border-t border-gray-200">
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                {{ 'admin.catalogFile' | translate }} <span class="text-gray-500 font-normal">({{ 'common.optional' | translate }})</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="file"
+                  [id]="'catalog-' + i"
+                  (change)="onCatalogFileSelected($event, i)"
+                  accept=".pdf,.doc,.docx,.txt"
+                  class="hidden"
+                />
+                <label
+                  [for]="'catalog-' + i"
+                  class="flex-1 btn-file-upload btn-file-upload-sm cursor-pointer text-center"
+                >
+                  <app-icon name="file" size="14" class="inline-block mr-1"></app-icon>
+                  <span *ngIf="!item.catalogFile">{{ 'admin.selectCatalog' | translate }}</span>
+                  <span *ngIf="item.catalogFile">{{ item.catalogFile.name }}</span>
+                </label>
+                <button
+                  *ngIf="item.catalogFile"
+                  (click)="removeCatalogFile(i)"
+                  class="btn-danger btn-danger-sm rounded-full w-8 h-8 p-0 flex-shrink-0 flex items-center justify-center"
+                  [attr.aria-label]="'common.delete' | translate"
+                >
+                  <app-icon name="close" size="14"></app-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Upload Button (moved outside card for sticky positioning on mobile) -->
+    <div *ngIf="hasFiles()" class="upload-button-wrapper">
+      <button
+        (click)="upload()"
+        [disabled]="!canUpload()"
+        class="w-full btn-primary upload-button"
+      >
+        <span *ngIf="!isProcessing()" class="flex items-center gap-2">
+          <app-icon name="upload" size="20" class="flex-shrink-0"></app-icon>
+          <span class="text-sm md:text-base">{{ 'admin.uploadAndIndex' | translate: {count: selectedFiles().length} }}</span>
+        </span>
+        <span *ngIf="isUploading() && !isGeneratingEmbeddings()" class="text-sm md:text-base">{{ 'admin.uploading' | translate: {progress: uploadProgress()} }}</span>
+        <span *ngIf="isGeneratingEmbeddings()" class="text-sm md:text-base">{{ 'admin.indexingImages' | translate: {progress: uploadProgress()} }}</span>
+      </button>
+    </div>
+
+    <!-- Upload Result (shown only if embeddings generation is complete) -->
+    <div *ngIf="showResult()" class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+      <h3 class="text-lg font-semibold text-green-800 mb-2">{{ 'admin.uploadAndIndexComplete' | translate }}</h3>
+      <p class="text-green-700 text-sm mb-4">
+        {{ 'admin.uploadedAndIndexedSuccess' | translate: {count: uploadResult()?.uploaded} }}
+      </p>
+      <p class="text-green-600 text-xs">
+        {{ 'admin.redirectingToDashboard' | translate }}
+      </p>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 md:p-6">
+      <h3 class="text-lg font-semibold text-blue-800 mb-2">{{ 'admin.instructions' | translate }}</h3>
+      <ol class="text-blue-700 space-y-2 text-sm list-decimal list-inside">
+        <li>{{ 'admin.instruction1' | translate }}</li>
+        <li>{{ 'admin.instruction2New' | translate }}</li>
+        <li>{{ 'admin.instruction3New' | translate }}</li>
+      </ol>
+      <p class="text-blue-600 text-xs mt-4">
+        {{ 'admin.exifTip' | translate }}
+      </p>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div *ngIf="showCreateFolderModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'admin.createFolder' | translate }}</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ 'admin.folderName' | translate }} *
+            </label>
+            <input
+              type="text"
+              [value]="newFolderName()"
+              (input)="newFolderName.set($any($event.target).value)"
+              [placeholder]="'admin.enterFolderName' | translate"
+              class="input w-full"
+              (keyup.enter)="createFolder()"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ 'admin.folderDescription' | translate }} ({{ 'common.optional' | translate }})
+            </label>
+            <textarea
+              [value]="newFolderDescription()"
+              (input)="newFolderDescription.set($any($event.target).value)"
+              [placeholder]="'admin.enterFolderDescription' | translate"
+              class="input w-full"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+        
+        <div class="flex gap-3 mt-6">
+          <button
+            (click)="createFolder()"
+            class="flex-1 btn-primary"
+          >
+            {{ 'admin.create' | translate }}
+          </button>
+          <button
+            (click)="cancelCreateFolder()"
+            class="flex-1 btn-secondary"
+          >
+            {{ 'common.cancel' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

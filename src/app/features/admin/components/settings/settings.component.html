@@ -1,0 +1,75 @@
+<div class="container-main">
+  <!-- User Information Section -->
+  <div class="card-lg mb-6">
+    <div class="flex items-center gap-3 mb-4">
+      <app-icon name="user" size="24" color="--color-primary-600"></app-icon>
+      <h2 class="text-heading">{{ 'admin.settings.userInfo' | translate }}</h2>
+    </div>
+    
+    <div class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pb-4 border-b border-gray-200 last:border-0">
+        <div class="text-sm font-medium text-gray-600 min-w-[120px]">
+          {{ 'admin.settings.email' | translate }}
+        </div>
+        <div class="text-base text-gray-800 flex-1">
+          {{ currentUser?.email || 'N/A' }}
+        </div>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pb-4 border-b border-gray-200 last:border-0">
+        <div class="text-sm font-medium text-gray-600 min-w-[120px]">
+          {{ 'admin.settings.role' | translate }}
+        </div>
+        <div class="text-base text-gray-800 flex-1">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [class.bg-blue-100]="currentUser?.role === roles.ADMIN"
+                [class.text-blue-800]="currentUser?.role === roles.ADMIN"
+                [class.bg-gray-100]="currentUser?.role !== roles.ADMIN"
+                [class.text-gray-800]="currentUser?.role !== roles.ADMIN">
+            {{ currentUser?.role === roles.ADMIN ? ('admin.adminRole' | translate) : ('admin.userRole' | translate) }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Language Settings Section -->
+  <div class="card-lg">
+    <div class="flex items-center gap-3 mb-4">
+      <app-icon name="globe" size="24" color="--color-primary-600"></app-icon>
+      <h2 class="text-heading">{{ 'admin.settings.language' | translate }}</h2>
+    </div>
+    
+    <div class="space-y-3">
+      <p class="text-sm text-gray-600 mb-4">
+        {{ 'admin.settings.languageDescription' | translate }}
+      </p>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <button
+          *ngFor="let lang of languages"
+          (click)="changeLanguage(lang.code)"
+          [class.bg-primary-500]="currentLanguage?.code === lang.code"
+          [class.text-white]="currentLanguage?.code === lang.code"
+          [class.bg-white]="currentLanguage?.code !== lang.code"
+          [class.text-gray-700]="currentLanguage?.code !== lang.code"
+          [class.border-primary-500]="currentLanguage?.code === lang.code"
+          [class.border-gray-300]="currentLanguage?.code !== lang.code"
+          class="flex items-center gap-3 p-4 rounded-lg border-2 transition-all hover:shadow-md touch-target"
+        >
+          <div class="flex-1 text-left">
+            <div class="font-medium">{{ lang.name }}</div>
+            <div class="text-xs opacity-75" *ngIf="lang.rtl">
+              {{ 'admin.settings.rtl' | translate }}
+            </div>
+          </div>
+          <app-icon 
+            *ngIf="currentLanguage?.code === lang.code"
+            name="check" 
+            size="20"
+          ></app-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

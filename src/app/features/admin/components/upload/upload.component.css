@@ -1,0 +1,54 @@
+/* Upload component styles */
+.upload-button-wrapper {
+  position: relative;
+}
+
+/* Mobile and tablet styles (applies until 1024px) */
+@media (max-width: 1023px) {
+  .container-content {
+    padding: 1rem;
+    padding-bottom: 5.5rem; /* Add bottom padding to prevent content from being hidden behind sticky button */
+  }
+
+  .card-lg {
+    padding: 1rem;
+  }
+
+  /* Ensure inputs don't overflow on mobile */
+  .input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Fix grid layout on mobile */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Sticky upload button on mobile */
+  .upload-button-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 0;
+    margin: 0;
+  }
+
+  .upload-button {
+    border-radius: 0;
+    margin: 0;
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-top: 1px solid var(--color-gray-200);
+    background-color: var(--color-primary-600);
+  }
+
+  .upload-button:disabled {
+    background-color: var(--color-gray-400);
+  }
+}

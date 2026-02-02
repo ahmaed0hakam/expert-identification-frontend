@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "706598739592",
+    "project_id": "id-system-0",
+    "storage_bucket": "id-system-0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706598739592:android:198ee7109fdadf1f3c493d",
+        "android_client_info": {
+          "package_name": "com.expertidentification.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI-9fvIrBYILQrbw2th77z9Z0tVsOLgIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

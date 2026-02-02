@@ -1,0 +1,166 @@
+<div>
+  <!-- Main Content -->
+  <main class="container-main">
+    <!-- Create User Button -->
+    <div class="mb-4 md:mb-6">
+      <button
+        (click)="toggleCreateForm()"
+        class="btn-primary"
+      >
+        {{ showCreateForm ? ('common.cancel' | translate) : ('admin.createUser' | translate) }}
+      </button>
+    </div>
+
+    <!-- Create User Form -->
+    <div *ngIf="showCreateForm" class="card-lg mb-4 md:mb-6">
+      <h2 class="text-heading mb-4">{{ 'admin.createNewUser' | translate }}</h2>
+      
+      <form (ngSubmit)="createUser()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            {{ 'auth.email' | translate }} *
+          </label>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="newUser.email"
+            [placeholder]="'auth.email' | translate"
+            required
+            class="input"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            {{ 'auth.password' | translate }} *
+          </label>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="newUser.password"
+            [placeholder]="'auth.password' | translate"
+            required
+            minlength="6"
+            class="input"
+          />
+        </div>
+
+        <app-dropdown
+          [options]="roleOptions"
+          [selectedValue]="newUser.role"
+          [label]="'admin.role' | translate"
+          [placeholder]="'admin.selectRole' | translate"
+          (selectionChange)="onRoleChange($event)"
+        ></app-dropdown>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            {{ 'admin.displayName' | translate }} ({{ 'common.optional' | translate }})
+          </label>
+          <input
+            type="text"
+            name="display_name"
+            [(ngModel)]="newUser.display_name"
+            [placeholder]="'admin.displayName' | translate"
+            class="input"
+          />
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            [disabled]="isCreating"
+            [class.btn-disabled]="isCreating"
+            class="btn-primary flex-1"
+          >
+            <span *ngIf="!isCreating">{{ 'admin.createUser' | translate }}</span>
+            <span *ngIf="isCreating">{{ 'common.loading' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            (click)="toggleCreateForm()"
+            class="btn-secondary flex-1 sm:flex-initial"
+          >
+            {{ 'common.cancel' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Users List -->
+    <div class="card-lg">
+      <h2 class="text-heading mb-4">{{ 'admin.usersList' | translate }}</h2>
+
+      <div *ngIf="isLoading" class="text-center py-12">
+        <div class="spinner mx-auto"></div>
+        <p class="mt-4 text-gray-600">{{ 'common.loading' | translate }}</p>
+      </div>
+
+      <div *ngIf="!isLoading && users.length === 0" class="text-center py-12">
+        <p class="text-gray-600">{{ 'admin.noUsers' | translate }}</p>
+      </div>
+
+      <div *ngIf="!isLoading && users.length > 0" class="space-y-4">
+        <div
+          *ngFor="let user of users"
+          class="border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition"
+        >
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <h3 class="text-base md:text-lg font-semibold text-gray-800 break-words">{{ user.email }}</h3>
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-semibold self-start sm:self-auto"
+                  [ngClass]="{
+                    'bg-purple-100 text-purple-800': user.role === roles.ADMIN,
+                    'bg-blue-100 text-blue-800': user.role === roles.USER
+                  }"
+                >
+                  {{ user.role === roles.ADMIN ? ('admin.adminRole' | translate) : ('admin.userRole' | translate) }}
+                </span>
+              </div>
+              <p *ngIf="user.displayName || user.display_name" class="text-sm text-gray-600 mt-1 break-words">
+                {{ user.displayName || user.display_name }}
+              </p>
+              <!-- <p class="text-xs text-gray-500 mt-1 break-all">UID: {{ user.uid }}</p> -->
+              <p *ngIf="user.emailVerified || user.email_verified" class="text-xs text-green-600 mt-1 flex items-center gap-1">
+                <app-icon name="check" size="14" color="--color-success"></app-icon>
+                {{ 'admin.emailVerified' | translate }}
+              </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <!-- Role Selector -->
+              <app-dropdown
+                [options]="roleOptions"
+                [selectedValue]="user.role"
+                (selectionChange)="onUserRoleChange(user, $event)"
+                class="flex-1 sm:flex-initial"
+              ></app-dropdown>
+
+              <!-- Delete Button -->
+              <button
+                (click)="deleteUser(user)"
+                class="btn-danger btn-danger-sm flex-1 sm:flex-initial"
+              >
+                {{ 'common.delete' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirm-modal
+    [isOpen]="showDeleteConfirm"
+    [title]="deleteConfirmTitle"
+    [message]="deleteConfirmMessage"
+    [confirmText]="'common.delete' | translate"
+    [cancelText]="'common.cancel' | translate"
+    type="danger"
+    (confirm)="confirmDelete()"
+    (close)="closeDeleteConfirm()"
+  ></app-confirm-modal>
+</div>

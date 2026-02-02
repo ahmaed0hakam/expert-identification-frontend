@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary color -->
+    <color name="colorPrimary">#0ea5e9</color>
+    
+    <!-- Status bar color (should match app background) -->
+    <color name="colorPrimaryDark">#ffffff</color>
+    
+    <!-- Accent color -->
+    <color name="colorAccent">#0ea5e9</color>
+</resources>

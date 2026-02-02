@@ -1,0 +1,50 @@
+<div
+  *ngIf="isOpen"
+  class="modal-backdrop"
+  (click)="onBackdropClick($event)"
+>
+  <div class="confirm-modal" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-icon-wrapper" [ngClass]="'type-' + type">
+        <app-icon
+          [name]="type === 'danger' ? 'warning' : 'check'"
+          size="24"
+          [color]="type === 'danger' ? 'var(--color-danger)' : type === 'warning' ? 'var(--color-warning)' : 'var(--color-info)'"
+        ></app-icon>
+      </div>
+      <h2 class="modal-title">{{ title }}</h2>
+      <button
+        type="button"
+        class="modal-close"
+        (click)="closeModal()"
+        [attr.aria-label]="'common.close' | translate"
+      >
+        <app-icon name="close" size="20"></app-icon>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      <p class="modal-message">{{ message }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="onCancel()"
+      >
+        {{ cancelText }}
+      </button>
+      <button
+        type="button"
+        [class]="'btn-' + (type === 'danger' ? 'danger' : 'primary')"
+        (click)="onConfirm()"
+      >
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,183 @@
+<div class="container-main">
+  <!-- Gallery Header with Search -->
+  <div class="gallery-header">
+    <div class="header-content">
+      <div class="header-top">
+        <div class="header-title">
+          <h1 class="page-title">{{ 'user.gallery' | translate }}</h1>
+          <p class="page-subtitle">{{ 'user.browseCollections' | translate }}</p>
+        </div>
+        <button
+          (click)="showCreateFolderModal.set(true)"
+          class="create-folder-btn"
+        >
+          <app-icon name="plus" size="20"></app-icon>
+          <span>{{ 'admin.createFolder' | translate }}</span>
+        </button>
+      </div>
+    <div class="search-container">
+      <div class="search-wrapper">
+          <app-icon name="search" size="20" class="search-icon"></app-icon>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event); onSearchInput()"
+            [placeholder]="'user.searchFolders' | translate"
+          class="search-input"
+        />
+          <button
+            *ngIf="searchTerm()"
+            (click)="clearSearch()"
+            class="clear-search-btn"
+            [attr.aria-label]="'common.clear' | translate"
+          >
+            <app-icon name="x" size="16"></app-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="gallery-stats">
+      <div class="stat-item">
+        <app-icon name="folder" size="18" class="stat-icon"></app-icon>
+        <span class="stat-text">
+          {{ 'user.totalFolders' | translate: {count: total()} }}
+      </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">{{ 'common.loading' | translate }}</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && folders().length === 0" class="empty-state">
+    <div class="empty-icon">
+      <app-icon name="folder" size="80"></app-icon>
+    </div>
+    <h3 class="empty-title">{{ searchTerm() ? ('user.noSearchResults' | translate) : ('user.noFolders' | translate) }}</h3>
+    <p class="empty-description">
+      {{ searchTerm() ? ('user.tryDifferentSearch' | translate) : ('user.createFirstFolder' | translate) }}
+    </p>
+  </div>
+
+  <!-- Folders Grid -->
+  <div *ngIf="!isLoading() && folders().length > 0" class="folders-grid">
+    <div
+      *ngFor="let folder of folders(); trackBy: trackById"
+      class="folder-card"
+      (click)="openFolder(folder)"
+    >
+      <div class="folder-card-inner">
+        <div class="folder-icon-wrapper">
+          <app-icon [name]="getFolderIcon(folder)" size="48" class="folder-icon"></app-icon>
+        </div>
+        <div class="folder-content">
+          <h3 class="folder-name">{{ folder.name }}</h3>
+          <p *ngIf="folder.description" class="folder-description">{{ folder.description }}</p>
+          <div class="folder-meta">
+            <div class="folder-count">
+              <app-icon name="image" size="16" class="meta-icon"></app-icon>
+              <span>{{ folder.image_count }} {{ 'user.images' | translate }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="folder-arrow">
+          <app-icon name="arrow-right" size="20"></app-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading() && totalPages() > 1 && !searchTerm()" class="pagination">
+    <button
+      (click)="previousPage()"
+      [disabled]="currentPage() === 0"
+      class="pagination-button"
+      [class.disabled]="currentPage() === 0"
+    >
+      <app-icon name="arrow-left" size="20"></app-icon>
+      <span>{{ 'common.previous' | translate }}</span>
+    </button>
+    <div class="pagination-info">
+      <span class="pagination-text">
+      {{ 'common.page' | translate }} {{ currentPage() + 1 }} {{ 'common.of' | translate }} {{ totalPages() }}
+    </span>
+    </div>
+    <button
+      (click)="nextPage()"
+      [disabled]="currentPage() >= totalPages() - 1"
+      class="pagination-button"
+      [class.disabled]="currentPage() >= totalPages() - 1"
+    >
+      <span>{{ 'common.next' | translate }}</span>
+      <app-icon name="arrow-right" size="20"></app-icon>
+    </button>
+  </div>
+
+  <!-- Create Folder Modal -->
+  <div *ngIf="showCreateFolderModal()" class="modal-overlay" (click)="cancelCreateFolder()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ 'admin.createFolder' | translate }}</h3>
+        <button
+          (click)="cancelCreateFolder()"
+          class="modal-close-btn"
+          [attr.aria-label]="'common.close' | translate"
+        >
+          <app-icon name="x" size="20"></app-icon>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'admin.folderName' | translate }} *
+          </label>
+          <input
+            type="text"
+            [value]="newFolderName()"
+            (input)="newFolderName.set($any($event.target).value)"
+            [placeholder]="'admin.enterFolderName' | translate"
+            class="form-input"
+            (keyup.enter)="createFolder()"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'admin.folderDescription' | translate }} ({{ 'common.optional' | translate }})
+          </label>
+          <textarea
+            [value]="newFolderDescription()"
+            (input)="newFolderDescription.set($any($event.target).value)"
+            [placeholder]="'admin.enterFolderDescription' | translate"
+            class="form-input"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button
+          (click)="createFolder()"
+          [disabled]="isCreatingFolder() || !newFolderName().trim()"
+          class="btn-primary"
+        >
+          <span *ngIf="!isCreatingFolder()">{{ 'admin.create' | translate }}</span>
+          <span *ngIf="isCreatingFolder()">{{ 'common.creating' | translate }}...</span>
+        </button>
+        <button
+          (click)="cancelCreateFolder()"
+          [disabled]="isCreatingFolder()"
+          class="btn-secondary"
+        >
+          {{ 'common.cancel' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

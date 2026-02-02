@@ -1,0 +1,421 @@
+<div>
+  <!-- Main Content -->
+  <main class="container-main">
+    <!-- Folders View -->
+    <div *ngIf="viewMode === 'folders'">
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ 'admin.manageImages' | translate }}</h1>
+            <p class="text-gray-600 mt-1">{{ 'admin.selectFolderToManage' | translate }}</p>
+          </div>
+          <div class="flex gap-2">
+            <!-- <button
+              (click)="showCreateFolderModal = true"
+              class="btn-primary btn-primary-sm flex items-center gap-2"
+            >
+              <app-icon name="plus" size="18"></app-icon>
+              <span>{{ 'admin.createFolder' | translate }}</span>
+            </button> -->
+            <button (click)="loadFolders()" class="btn-secondary btn-secondary-sm">
+              <app-icon name="refresh" size="18"></app-icon>
+              {{ 'common.refresh' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-wrapper">
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()"
+              [placeholder]="'admin.searchFolders' | translate" class="search-input" />
+            <app-icon name="search" size="20" class="search-icon"></app-icon>
+            <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search-btn"
+              [attr.aria-label]="'common.clear' | translate">
+              <app-icon name="x" size="16"></app-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingFolders" class="text-center py-12">
+        <div class="spinner mx-auto"></div>
+        <p class="mt-4 text-gray-600">{{ 'common.loading' | translate }}</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoadingFolders && folders.length === 0" class="bg-white rounded-xl shadow-md p-12 text-center">
+        <app-icon name="folder" size="64" class="mx-auto text-gray-400 mb-4"></app-icon>
+        <p class="text-gray-600 text-lg">{{ 'admin.noFolders' | translate }}</p>
+        <p class="text-gray-500 text-sm mt-2">{{ 'admin.createFolderFirst' | translate }}</p>
+      </div>
+
+      <!-- Unassigned Images Card -->
+      <div *ngIf="!isLoadingUnassignedCount && unassignedImagesCount > 0" class="mb-6">
+        <div class="folder-card" (click)="openUnassignedImages()">
+          <div class="folder-card-inner">
+            <div class="folder-icon-wrapper" style="background-color: var(--color-warning-100);">
+              <app-icon name="image" size="48" class="folder-icon" style="color: var(--color-warning-600);"></app-icon>
+            </div>
+            <div class="folder-content">
+              <h3 class="folder-name">{{ 'admin.unassignedImages' | translate }}</h3>
+              <p class="folder-description">{{ 'admin.unassignedImagesDesc' | translate }}</p>
+              <div class="folder-meta">
+                <div class="folder-count">
+                  <app-icon name="image" size="16" class="meta-icon"></app-icon>
+                  <span>{{ unassignedImagesCount }} {{ 'user.images' | translate }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="folder-arrow">
+              <app-icon name="arrow-right" size="20"></app-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Folders Grid -->
+      <div *ngIf="!isLoadingFolders && folders.length > 0" class="folders-grid">
+        <div *ngFor="let folder of folders" class="folder-card" (click)="openFolder(folder)">
+          <div class="folder-card-inner">
+            <div class="folder-icon-wrapper">
+              <app-icon name="folder" size="48" class="folder-icon"></app-icon>
+            </div>
+            <div class="folder-content">
+              <h3 class="folder-name">{{ folder.name }}</h3>
+              <p *ngIf="folder.description" class="folder-description">{{ folder.description }}</p>
+              <div class="folder-meta">
+                <div class="folder-count">
+                  <app-icon name="image" size="16" class="meta-icon"></app-icon>
+                  <span>{{ folder.image_count || 0 }} {{ 'user.images' | translate }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="folder-arrow">
+              <app-icon name="arrow-right" size="20"></app-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Images View (when folder is selected or unassigned images) -->
+    <div *ngIf="(viewMode === 'images' && selectedFolder) || viewMode === 'unassigned'">
+      <!-- Back Button and Header -->
+      <div class="mb-6">
+        <button (click)="goBackToFolders()" class="btn-secondary btn-secondary-sm mb-4 flex items-center gap-2">
+          <app-icon name="arrow-left" size="18"></app-icon>
+          <span>{{ 'common.back' | translate }}</span>
+        </button>
+
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <app-icon [name]="viewMode === 'unassigned' ? 'image' : 'folder'" size="24"></app-icon>
+              <span *ngIf="viewMode === 'unassigned'">{{ 'admin.unassignedImages' | translate }}</span>
+              <span *ngIf="viewMode === 'images' && selectedFolder">{{ selectedFolder.name }}</span>
+            </h1>
+            <p *ngIf="viewMode === 'images' && selectedFolder && selectedFolder.description" class="text-gray-600 mt-1">
+              {{ selectedFolder.description }}</p>
+            <p *ngIf="viewMode === 'unassigned'" class="text-gray-600 mt-1">{{ 'admin.unassignedImagesDesc' | translate
+              }}</p>
+          </div>
+          <div class="flex gap-2">
+            <button *ngIf="hasSelectedImages" (click)="bulkDelete()" [disabled]="isBulkDeleting"
+              [class.btn-disabled]="isBulkDeleting" class="btn-danger btn-danger-sm">
+              <span *ngIf="!isBulkDeleting" class="flex items-center gap-2">
+                <app-icon name="trash" size="18"></app-icon>
+                {{ 'admin.deleteSelected' | translate: {count: selectedImages.size} }}
+              </span>
+              <span *ngIf="isBulkDeleting">{{ 'common.loading' | translate }}</span>
+            </button>
+            <button (click)="viewMode === 'unassigned' ? loadUnassignedImages() : loadFolderImages()"
+              [disabled]="isLoading" class="btn-secondary btn-secondary-sm">
+              <app-icon name="refresh" size="18" [class.animate-spin]="isLoading"></app-icon>
+              {{ 'common.refresh' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-wrapper">
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchInput()"
+              [placeholder]="'admin.searchImages' | translate" class="search-input" />
+            <app-icon name="search" size="20" class="search-icon"></app-icon>
+            <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search-btn"
+              [attr.aria-label]="'common.clear' | translate">
+              <app-icon name="x" size="16"></app-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-12">
+        <div class="spinner mx-auto"></div>
+        <p class="mt-4 text-gray-600">{{ 'common.loading' | translate }}</p>
+      </div>
+
+      <!-- Header with count -->
+      <div *ngIf="!isLoading" class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">
+          {{ 'admin.totalImagesCount' | translate: {count: total} }}
+        </h2>
+      </div>
+
+      <!-- Select All -->
+      <div *ngIf="!isLoading && images.length > 0" class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg mb-4">
+        <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll()" id="select-all"
+          class="w-4 h-4 rounded focus:ring-2" style="accent-color: var(--color-primary-600);" />
+        <label for="select-all" class="text-sm font-medium text-gray-700 cursor-pointer">
+          {{ 'admin.selectAll' | translate }}
+        </label>
+        <span *ngIf="hasSelectedImages" class="text-sm text-gray-600 ml-auto">
+          {{ 'admin.selectedCount' | translate: {count: selectedImages.size} }}
+        </span>
+      </div>
+
+      <!-- Images List -->
+      <div *ngIf="!isLoading && images.length === 0" class="bg-white rounded-xl shadow-md p-12 text-center">
+        <app-icon name="image" size="64" class="mx-auto text-gray-400 mb-4"></app-icon>
+        <p class="text-gray-600 text-lg">{{ 'admin.noImages' | translate }}</p>
+        <p class="text-gray-500 text-sm mt-2">{{ 'admin.noImagesInFolder' | translate }}</p>
+      </div>
+
+      <div *ngIf="!isLoading && images.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div *ngFor="let image of images"
+          class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition relative">
+          <!-- Checkbox -->
+          <div class="absolute top-2 left-2">
+            <input type="checkbox" [checked]="selectedImages.has(image.id)" (change)="toggleImageSelection(image.id)"
+              (click)="$event.stopPropagation()" class="w-5 h-5 rounded focus:ring-2 bg-white"
+              style="accent-color: var(--color-primary-600);" />
+          </div>
+
+          <!-- Image Preview (clickable) -->
+          <div class="bg-gray-100 h-48 flex items-center justify-center overflow-hidden cursor-pointer"
+            (click)="showImageDetails(image)">
+            <img *ngIf="getImageUrl(image)" [src]="getImageUrl(image)" [alt]="image.title"
+              class="max-h-full max-w-full object-contain" (error)="onImageError($event)" />
+            <div *ngIf="!getImageUrl(image)" class="text-gray-400 text-sm">
+              Loading...
+            </div>
+          </div>
+
+          <!-- Image Details -->
+          <div class="p-3 md:p-4">
+            <!-- Viewing Mode -->
+            <div *ngIf="editingImage?.id !== image.id">
+              <h3 class="font-semibold text-gray-800 mb-2 break-words" [title]="image.title">
+                {{ image.title }}
+              </h3>
+
+              <p *ngIf="image.description" class="text-sm text-gray-600 mb-2 line-clamp-2 break-words">
+                {{ image.description }}
+              </p>
+
+              <p *ngIf="image.category" class="text-xs text-gray-500 mb-2 break-words">
+                {{ 'admin.category' | translate }}: {{ image.category }}
+              </p>
+
+              <div class="flex items-center gap-2 mb-2">
+                <span *ngIf="image.chroma_id"
+                  class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded flex items-center gap-1">
+                  <app-icon name="check" size="14" color="--color-success-dark"></app-icon>
+                  {{ 'admin.indexed' | translate }}
+                </span>
+                <span *ngIf="!image.chroma_id"
+                  class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded flex items-center gap-1">
+                  <app-icon name="warning" size="14" color="--color-warning-dark"></app-icon>
+                  {{ 'admin.notIndexed' | translate }}
+                </span>
+              </div>
+
+              <!-- Actions -->
+              <div class="mt-4 space-y-2">
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <button (click)="startEdit(image)" class="flex-1 btn-primary btn-primary-sm">
+                    <app-icon name="edit" size="16" class="flex-shrink-0"></app-icon>
+                    {{ 'common.edit' | translate }}
+                  </button>
+                  <button (click)="deleteImage(image.id)" [disabled]="isDeleting && deletingImageId === image.id"
+                    [class.btn-disabled]="isDeleting && deletingImageId === image.id"
+                    class="flex-1 btn-danger btn-danger-sm">
+                    <span *ngIf="!(isDeleting && deletingImageId === image.id)" class="flex-center gap-1">
+                      <app-icon name="trash" size="16" class="flex-shrink-0"></app-icon>
+                      {{ 'common.delete' | translate }}
+                    </span>
+                    <span *ngIf="isDeleting && deletingImageId === image.id">{{ 'common.loading' | translate }}</span>
+                  </button>
+                </div>
+                <button *ngIf="image.has_catalog" (click)="downloadCatalog(image); $event.stopPropagation()"
+                  class="w-full btn-primary btn-primary-sm flex items-center justify-center gap-1"
+                  [title]="image.catalog_filename || 'Download Catalog'">
+                  <app-icon name="download" size="16"></app-icon>
+                  <span>{{ 'user.downloadCatalog' | translate }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Editing Mode -->
+            <div *ngIf="editingImage?.id === image.id" class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.title' | translate }} *</label>
+                <input type="text" [(ngModel)]="editTitle" [placeholder]="'admin.enterTitle' | translate"
+                  class="input input-sm" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.description' | translate
+                  }}</label>
+                <textarea [(ngModel)]="editDescription" rows="2" [placeholder]="'admin.enterDescription' | translate"
+                  class="input input-sm"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">{{ 'admin.category' | translate }}</label>
+                <input type="text" [(ngModel)]="editCategory" [placeholder]="'admin.enterCategory' | translate"
+                  class="input input-sm" />
+              </div>
+
+              <!-- Folder Assignment -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  {{ 'admin.folder' | translate }}
+                  <span class="text-gray-500 font-normal">({{ 'common.optional' | translate }})</span>
+                </label>
+                <app-dropdown [options]="folderOptions()" [selectedValue]="editFolderId"
+                  [placeholder]="('admin.noFolder' | translate) + ' (' + ('common.optional' | translate) + ')'"
+                  [disabled]="isLoadingFolders || (isAssigningFolder && assigningImageId === image.id)"
+                  [label]="'admin.folder' | translate" [showClear]="true"
+                  (selectionChange)="onFolderSelected($event)"></app-dropdown>
+
+              </div>
+
+              <!-- Catalog File Upload/Update -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  {{ 'admin.catalogFile' | translate }}
+                  <span class="text-gray-500 font-normal">({{ 'common.optional' | translate }})</span>
+                </label>
+                <div class="flex items-center gap-2">
+                  <input type="file" [id]="'catalog-upload-' + image.id"
+                    (change)="onCatalogFileSelected($event, image.id)" accept=".pdf,.doc,.docx,.txt" class="hidden" />
+                  <label [for]="'catalog-upload-' + image.id"
+                    [class.btn-disabled]="isUploadingCatalog && uploadingCatalogId === image.id"
+                    class="flex-1 btn-file-upload btn-file-upload-sm cursor-pointer text-center">
+                    <app-icon name="file" size="14" class="inline-block mr-1"></app-icon>
+                    <span *ngIf="!(isUploadingCatalog && uploadingCatalogId === image.id)">
+                      <span *ngIf="!image.has_catalog">{{ 'admin.uploadCatalog' | translate }}</span>
+                      <span *ngIf="image.has_catalog">{{ 'admin.updateCatalog' | translate }}</span>
+                    </span>
+                    <span *ngIf="isUploadingCatalog && uploadingCatalogId === image.id">{{ 'common.loading' | translate
+                      }}</span>
+                  </label>
+                  <button *ngIf="image.has_catalog" (click)="deleteCatalog(image.id)"
+                    [disabled]="isDeletingCatalog && deletingCatalogId === image.id || isUploadingCatalog && uploadingCatalogId === image.id"
+                    [class.btn-disabled]="isDeletingCatalog && deletingCatalogId === image.id || isUploadingCatalog && uploadingCatalogId === image.id"
+                    class="btn-danger btn-danger-sm rounded-full w-8 h-8 p-0 flex-shrink-0 flex items-center justify-center"
+                    [attr.aria-label]="'common.delete' | translate">
+                    <app-icon name="trash" size="14"></app-icon>
+                  </button>
+                </div>
+                <p *ngIf="image.has_catalog && image.catalog_filename" class="text-xs text-gray-500 mt-1">
+                  {{ 'admin.currentCatalog' | translate }}: {{ image.catalog_filename }}
+                </p>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-2">
+                <button (click)="saveEdit()" [disabled]="!editTitle.trim() || isSaving"
+                  [class.btn-disabled]="!editTitle.trim() || isSaving" class="flex-1 btn-success btn-primary-sm">
+                  <span *ngIf="!isSaving" class="flex-center gap-1">
+                    <app-icon name="save" size="16" class="flex-shrink-0"></app-icon>
+                    {{ 'common.save' | translate }}
+                  </span>
+                  <span *ngIf="isSaving">{{ 'admin.saving' | translate }}</span>
+                </button>
+                <button (click)="cancelEdit()" [disabled]="isSaving" [class.btn-disabled]="isSaving"
+                  class="flex-1 btn-secondary btn-secondary-sm">
+                  {{ 'common.cancel' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!isLoading && totalPages > 1"
+        class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-6 md:mt-8">
+        <button (click)="previousPage()" [disabled]="currentPage === 0" [class.btn-disabled]="currentPage === 0"
+          class="btn-secondary btn-secondary-sm">
+          <app-icon name="arrow-left" size="18"></app-icon>
+          <span>{{ 'admin.previous' | translate }}</span>
+        </button>
+
+        <span class="text-gray-700 text-sm md:text-base text-center">
+          {{ 'admin.page' | translate }} {{ currentPage + 1 }} {{ 'admin.of' | translate }} {{ totalPages }}
+        </span>
+
+        <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
+          [class.btn-disabled]="currentPage >= totalPages - 1" class="btn-secondary btn-secondary-sm">
+          <span>{{ 'admin.next' | translate }}</span>
+          <app-icon name="arrow-right" size="18"></app-icon>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Folder Modal -->
+  <div *ngIf="showCreateFolderModal" class="modal-overlay" (click)="cancelCreateFolder()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ 'admin.createFolder' | translate }}</h3>
+        <button (click)="cancelCreateFolder()" class="modal-close-btn" [attr.aria-label]="'common.close' | translate">
+          <app-icon name="x" size="20"></app-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'admin.folderName' | translate }} *
+          </label>
+          <input type="text" [(ngModel)]="newFolderName" [placeholder]="'admin.enterFolderName' | translate"
+            class="form-input" (keyup.enter)="createFolder()" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'admin.folderDescription' | translate }} ({{ 'common.optional' | translate }})
+          </label>
+          <textarea [(ngModel)]="newFolderDescription" [placeholder]="'admin.enterFolderDescription' | translate"
+            class="form-input" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="createFolder()" [disabled]="isCreatingFolder || !newFolderName.trim()" class="btn-primary">
+          <span *ngIf="!isCreatingFolder">{{ 'admin.create' | translate }}</span>
+          <span *ngIf="isCreatingFolder">{{ 'common.creating' | translate }}...</span>
+        </button>
+        <button (click)="cancelCreateFolder()" [disabled]="isCreatingFolder" class="btn-secondary">
+          {{ 'common.cancel' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Detail Modal -->
+  <app-image-detail-modal [isOpen]="showImageDetail" [image]="selectedImageDetail" [imageUrl]="selectedImageDetailUrl"
+    [catalogDownloadHandler]="getCatalogDownloadHandler()" (closeModal)="closeImageDetail()"></app-image-detail-modal>
+
+  <!-- Delete Confirmation Modal -->
+  <app-confirm-modal [isOpen]="showDeleteConfirm" [title]="deleteConfirmTitle" [message]="deleteConfirmMessage"
+    [confirmText]="'common.delete' | translate" [cancelText]="'common.cancel' | translate" type="danger"
+    (confirm)="confirmDelete()" (close)="closeDeleteConfirm()"></app-confirm-modal>
+</div>

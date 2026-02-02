@@ -1,0 +1,514 @@
+@import './styles/variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+  transition: direction 0.3s ease;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Safe area utilities */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Loading spinner */
+.spinner {
+  border: 3px solid var(--color-gray-200);
+  border-top: 3px solid var(--color-primary-600);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   BUTTON GROUPS
+   ============================================ */
+
+/* Primary Button */
+.btn-primary {
+  @apply flex items-center justify-center gap-2 bg-primary-600 text-white py-3 md:py-4 px-4 md:px-6 rounded-lg font-semibold hover:bg-primary-700 active:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 transition touch-manipulation min-h-[48px];
+}
+
+.btn-primary-sm {
+  @apply btn-primary py-2 px-3 md:py-2.5 md:px-4 text-sm min-h-[40px];
+}
+
+.btn-primary-lg {
+  @apply btn-primary py-4 px-6 md:py-5 md:px-8 text-base md:text-lg min-h-[56px];
+}
+
+/* Secondary Button */
+.btn-secondary {
+  @apply flex items-center justify-center gap-2 bg-gray-200 text-gray-800 py-3 md:py-4 px-4 md:px-6 rounded-lg font-semibold hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition touch-manipulation min-h-[48px];
+}
+
+.btn-secondary-sm {
+  @apply btn-secondary py-2 px-3 md:py-2.5 md:px-4 text-sm min-h-[40px];
+}
+
+/* Danger Button */
+.btn-danger {
+  @apply flex items-center justify-center gap-2 bg-red-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-lg font-semibold hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition touch-manipulation min-h-[48px];
+}
+
+.btn-danger-sm {
+  @apply btn-danger py-2 px-3 md:py-2.5 md:px-4 text-sm min-h-[40px];
+}
+
+/* Success Button */
+.btn-success {
+  @apply flex items-center justify-center gap-2 bg-green-500 text-white py-3 md:py-4 px-4 md:px-6 rounded-lg font-semibold hover:bg-green-600 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition touch-manipulation min-h-[48px];
+}
+
+/* Ghost Button */
+.btn-ghost {
+  @apply flex items-center justify-center gap-2 bg-transparent text-gray-600 py-3 md:py-4 px-4 md:px-6 rounded-lg font-semibold hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition touch-manipulation min-h-[48px];
+}
+
+/* File Upload Button - Distinct style for file uploads */
+.btn-file-upload {
+  @apply flex items-center justify-center gap-2 bg-blue-50 text-blue-700 border-2 border-blue-300 border-dashed py-3 md:py-4 px-4 md:px-6 rounded-lg font-medium hover:bg-blue-100 hover:border-blue-400 active:bg-blue-200 active:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition touch-manipulation min-h-[48px];
+}
+
+.btn-file-upload-sm {
+  @apply btn-file-upload py-2 px-3 md:py-2.5 md:px-4 text-xs md:text-sm min-h-[40px];
+}
+
+/* Disabled Button */
+.btn-disabled {
+  @apply opacity-50 cursor-not-allowed pointer-events-none;
+}
+
+/* ============================================
+   CARD GROUPS
+   ============================================ */
+
+.card {
+  @apply bg-white rounded-lg shadow-md p-4 mb-4;
+}
+
+.card-lg {
+  @apply card rounded-xl p-6;
+}
+
+.card-sm {
+  @apply card p-3 rounded-md;
+}
+
+.card-hover {
+  @apply card transition-shadow hover:shadow-lg;
+}
+
+/* ============================================
+   INPUT GROUPS
+   ============================================ */
+
+.input {
+  @apply w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-base;
+}
+
+.input-error {
+  @apply input border-red-500 focus:ring-red-500;
+}
+
+.input-sm {
+  @apply input py-1.5 px-2.5 text-sm;
+}
+
+.input-lg {
+  @apply input py-4 px-5 text-lg;
+}
+
+/* ============================================
+   NAVIGATION GROUPS
+   ============================================ */
+
+.nav-link {
+  @apply border-b-2 border-transparent py-3 md:py-4 px-2 md:px-1 text-xs md:text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap touch-manipulation transition;
+}
+
+.nav-link-active {
+  @apply nav-link border-primary-500 text-primary-600;
+}
+
+/* ============================================
+   HEADER GROUPS
+   ============================================ */
+
+.header {
+  @apply bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10;
+}
+
+.header-content {
+  @apply max-w-7xl mx-auto px-3 md:px-4 py-3 md:py-4 flex items-center gap-3 md:gap-4;
+}
+
+.header-title {
+  @apply text-lg md:text-2xl font-bold text-gray-800;
+}
+
+/* ============================================
+   BADGE GROUPS
+   ============================================ */
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply badge bg-primary-100 text-primary-800;
+}
+
+.badge-success {
+  @apply badge bg-green-100 text-green-800;
+}
+
+.badge-danger {
+  @apply badge bg-red-100 text-red-800;
+}
+
+.badge-warning {
+  @apply badge bg-yellow-100 text-yellow-800;
+}
+
+.badge-gray {
+  @apply badge bg-gray-100 text-gray-800;
+}
+
+/* ============================================
+   CONTAINER GROUPS
+   ============================================ */
+
+.container-main {
+  @apply max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-8;
+}
+
+.container-content {
+  @apply max-w-4xl mx-auto px-3 md:px-4 py-4 md:py-8;
+}
+
+.container-narrow {
+  @apply max-w-2xl mx-auto px-3 md:px-4 py-4 md:py-8;
+}
+
+/* ============================================
+   PROGRESS BAR GROUPS
+   ============================================ */
+
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-300;
+}
+
+/* ============================================
+   IMAGE GROUPS
+   ============================================ */
+
+.image-preview {
+  @apply w-full max-h-96 object-contain rounded-lg border border-gray-200;
+}
+
+.image-thumbnail {
+  @apply w-20 h-20 object-cover rounded-md border border-gray-200;
+}
+
+/* ============================================
+   TEXT GROUPS
+   ============================================ */
+
+.text-heading {
+  @apply text-xl font-semibold text-gray-800 mb-4;
+}
+
+.text-heading-lg {
+  @apply text-2xl md:text-3xl font-bold text-gray-800 mb-6;
+}
+
+.text-muted {
+  @apply text-sm text-gray-600;
+}
+
+.text-link {
+  @apply text-primary-600 hover:text-primary-700 underline transition;
+}
+
+/* ============================================
+   GRID GROUPS
+   ============================================ */
+
+.grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+}
+
+.grid-2-col {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4;
+}
+
+/* ============================================
+   SPACING GROUPS
+   ============================================ */
+
+.section-spacing {
+  @apply space-y-3 md:space-y-4;
+}
+
+.section-spacing-lg {
+  @apply space-y-4 md:space-y-6;
+}
+
+/* ============================================
+   ICON COLOR UTILITIES
+   ============================================ */
+
+.icon-primary {
+  color: var(--color-primary-600);
+}
+
+.icon-primary-light {
+  color: var(--color-primary-500);
+}
+
+.icon-primary-dark {
+  color: var(--color-primary-700);
+}
+
+.icon-success {
+  color: var(--color-success);
+}
+
+.icon-danger {
+  color: var(--color-danger);
+}
+
+.icon-warning {
+  color: var(--color-warning);
+}
+
+.icon-info {
+  color: var(--color-info);
+}
+
+.icon-gray {
+  color: var(--color-gray-600);
+}
+
+.icon-gray-light {
+  color: var(--color-gray-500);
+}
+
+.icon-gray-dark {
+  color: var(--color-gray-800);
+}
+
+.icon-white {
+  color: var(--color-white);
+}
+
+/* ============================================
+   UTILITY GROUPS
+   ============================================ */
+
+.touch-target {
+  @apply touch-manipulation min-h-[44px] min-w-[44px];
+}
+
+.touch-target-lg {
+  @apply touch-target min-h-[48px] min-w-[48px];
+}
+
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+
+/* RTL-specific adjustments */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* Flip arrows in RTL */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Mobile-first improvements */
+@media (max-width: 768px) {
+  /* Hide scrollbar on mobile - no scroll indicator */
+  html, body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
+  }
+  
+  /* Hide scrollbar for all elements on mobile */
+  * {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
+  }
+  
+  /* Larger touch targets for mobile */
+  button, a, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing on mobile */
+  .container, main {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Card improvements for mobile */
+  .card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Navigation improvements */
+  nav a {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Form inputs larger on mobile */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+  
+  /* Better grid for mobile */
+  .grid {
+    gap: 1rem;
+  }
+  
+  /* Hide some elements on very small screens */
+  @media (max-width: 640px) {
+    .hidden-mobile {
+      display: none;
+    }
+  }
+}
+
+/* Native mobile feel */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Better button feedback on mobile */
+button:active, a:active {
+  transform: scale(0.98);
+  transition: transform 0.1s;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}

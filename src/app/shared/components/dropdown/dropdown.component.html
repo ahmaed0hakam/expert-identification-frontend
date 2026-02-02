@@ -1,0 +1,104 @@
+<div class="dropdown-wrapper">
+  <label *ngIf="label" class="dropdown-label">
+    {{ label }}
+  </label>
+  
+  <div 
+    class="dropdown"
+    [class.dropdown-open]="isOpen"
+    [class.dropdown-disabled]="disabled"
+    [class.dropdown-error]="error"
+    #dropdownTrigger
+  >
+    <div 
+      class="dropdown-trigger"
+      (click)="toggleDropdown()"
+      [attr.aria-expanded]="isOpen"
+      [attr.aria-haspopup]="true"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="toggleDropdown()"
+      (keydown.space)="toggleDropdown(); $event.preventDefault()"
+    >
+      <span class="dropdown-value" [class.placeholder]="!selectedOption">
+        {{ displayText }}
+      </span>
+      <div class="dropdown-icons">
+        <button
+          *ngIf="showClear && selectedOption && !disabled"
+          type="button"
+          class="dropdown-clear"
+          (click)="clearSelection($event)"
+          [attr.aria-label]="'Clear selection'"
+        >
+          <app-icon name="close" size="16"></app-icon>
+        </button>
+        <svg 
+          class="dropdown-arrow"
+          [class.rotated]="isOpen"
+          width="20" 
+          height="20" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Mobile Backdrop -->
+    <div 
+      *ngIf="isOpen"
+      class="dropdown-backdrop"
+      (click)="closeDropdown()"
+    ></div>
+
+    <div 
+      *ngIf="isOpen"
+      class="dropdown-menu"
+      #dropdownMenu
+      role="listbox"
+      (click)="$event.stopPropagation()"
+    >
+      <div *ngIf="options.length > 5" class="dropdown-search">
+        <input
+          type="text"
+          class="dropdown-search-input"
+          [placeholder]="'Search...'"
+          [value]="searchTerm"
+          (input)="onSearchInput($event)"
+          (click)="$event.stopPropagation()"
+        />
+      </div>
+      
+      <div class="dropdown-options" role="list">
+        <div
+          *ngFor="let option of filteredOptions; trackBy: trackByValue"
+          class="dropdown-option"
+          [class.selected]="option.value === selectedValue"
+          [class.disabled]="option.disabled"
+          (click)="selectOption(option)"
+          role="option"
+          [attr.aria-selected]="option.value === selectedValue"
+        >
+          <span class="option-label">{{ option.label }}</span>
+          <app-icon 
+            *ngIf="option.value === selectedValue"
+            name="check" 
+            size="18" 
+            class="option-check"
+          ></app-icon>
+        </div>
+        
+        <div *ngIf="filteredOptions.length === 0" class="dropdown-no-results">
+          No options found
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error && errorMessage" class="dropdown-error-message">
+    {{ errorMessage }}
+  </div>
+</div>

@@ -1,0 +1,113 @@
+apply plugin: 'com.android.application'
+
+// Load keystore properties from file
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+def keystoreFileRef = null
+def hasValidKeystore = false
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    def keystorePath = keystoreProperties['storeFile']
+    if (keystorePath) {
+        // Resolve path to absolute path for Gradle task execution
+        String resolvedPath = keystorePath.trim()
+        
+        // If path starts with ~, resolve it to home directory
+        if (resolvedPath.startsWith('~')) {
+            def homeDir = System.getProperty('user.home')
+            resolvedPath = resolvedPath.replaceFirst('~', homeDir)
+        }
+        
+        // Create file reference - resolve relative paths from android directory
+        def testFile
+        if (resolvedPath.startsWith('/')) {
+            // Absolute path
+            testFile = file(resolvedPath)
+        } else {
+            // Relative path - resolve from android directory (rootProject.projectDir)
+            testFile = file(new File(rootProject.projectDir, resolvedPath))
+        }
+        keystoreFileRef = testFile.getAbsoluteFile()
+        
+        // Check if keystore file actually exists
+        if (keystoreFileRef.exists()) {
+            hasValidKeystore = true
+            println "✓ Found keystore file: ${keystoreFileRef.absolutePath}"
+        } else {
+            println "⚠ WARNING: Keystore file not found at: ${keystorePath}"
+            println "  Resolved path: ${keystoreFileRef.absolutePath}"
+            println "  Release builds will be unsigned. Please verify the file exists and update keystore.properties with correct path."
+        }
+    }
+}
+
+android {
+    namespace "com.expertidentification.app"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.expertidentification.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    
+    signingConfigs {
+        release {
+            if (hasValidKeystore && keystoreFileRef) {
+                storeFile keystoreFileRef
+                storePassword keystoreProperties['storePassword'] ?: ''
+                keyAlias keystoreProperties['keyAlias'] ?: ''
+                keyPassword keystoreProperties['keyPassword'] ?: ''
+            }
+        }
+    }
+    
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasValidKeystore) {
+                signingConfig signingConfigs.release
+            } else {
+                println "⚠ WARNING: Release build will be unsigned (keystore not configured)"
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

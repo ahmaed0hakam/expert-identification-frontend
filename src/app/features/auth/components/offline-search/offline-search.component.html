@@ -1,0 +1,167 @@
+<app-offline-search-layout>
+    <!-- Initialization Progress -->
+    <div *ngIf="isInitializing" class="card-lg">
+      <div class="flex flex-col items-center justify-center py-12">
+        <svg class="spinner-icon" fill="none" viewBox="0 0 24 24">
+          <circle class="spinner-circle" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle>
+          <path class="spinner-path" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-gray-600 text-sm md:text-base mt-4">{{ 'offlineSearch.initializing' | translate }}</p>
+        <p class="text-gray-500 text-xs mt-1">{{ 'offlineSearch.fetchingAndCaching' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isInitializing">
+      <!-- Info Card -->
+      <div class="text-center mb-6">
+        <p class="text-gray-600 text-sm md:text-base mb-2">
+          {{ 'offlineSearch.infoDescription' | translate }}
+        </p>
+        <p class="text-gray-500 text-xs md:text-sm">
+          {{ 'offlineSearch.cachedImages' | translate: { count: cachedImageCount } }}
+        </p>
+      </div>
+
+      <!-- Image Selection -->
+      <div class="card-lg mb-6">
+        <h2 class="text-heading">{{ 'user.uploadOrCapture' | translate }}</h2>
+        
+        <div *ngIf="!selectedImage" class="section-spacing">
+          <div class="w-full">
+            <button (click)="captureImage()" class="btn-primary w-full">
+              <app-icon name="camera" size="20" class="flex-shrink-0"></app-icon>
+              <span class="text-sm md:text-base">{{ 'user.capturePhoto' | translate }}</span>
+            </button>
+            <!-- <button (click)="selectFromGallery()" class="btn-secondary">
+              <app-icon name="image" size="20" class="flex-shrink-0"></app-icon>
+              <span class="text-sm md:text-base">{{ 'user.chooseGallery' | translate }}</span>
+            </button> -->
+          </div>
+          
+          <div class="relative">
+            <input
+              type="file"
+              [accept]="imageAcceptAttribute"
+              (change)="onFileSelected($event)"
+              class="hidden"
+              id="file-input"
+            />
+            <label
+              for="file-input"
+              class="btn-secondary block w-full text-center cursor-pointer"
+            >
+              <app-icon name="folder" size="20" class="flex-shrink-0"></app-icon>
+              <span class="text-sm md:text-base">{{ 'user.orSelectFile' | translate }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Processing Indicator -->
+        <div *ngIf="isProcessing" class="section-spacing">
+          <div class="flex flex-col items-center justify-center py-8">
+            <svg class="animate-spin h-12 w-12 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-600 text-sm md:text-base">{{ 'common.loading' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Selected Image Preview -->
+        <div *ngIf="selectedImage && !isProcessing" class="section-spacing">
+          <div class="relative" *ngIf="selectedFile && selectedImage">
+            <img
+              [src]="selectedImage"
+              alt="Selected image"
+              class="image-preview"
+            />
+            <button
+              (click)="clearSelection()"
+              class="absolute top-2 right-2 btn-danger rounded-full w-10 h-10 p-0"
+              [attr.aria-label]="'user.clear' | translate"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
+            <button
+              (click)="search()"
+              [disabled]="isSearching || !selectedFile"
+              [class.btn-disabled]="isSearching || !selectedFile"
+              class="flex-1 btn-primary"
+            >
+              <span *ngIf="!isSearching" class="flex-center gap-2">
+                <app-icon name="search" size="20" class="flex-shrink-0"></app-icon>
+                <span class="text-sm md:text-base">{{ 'common.search' | translate }}</span>
+              </span>
+              <span *ngIf="isSearching" class="flex-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm md:text-base">{{ 'common.loading' | translate }}</span>
+              </span>
+            </button>
+            <button (click)="clearSelection()" class="btn-secondary">
+              {{ 'user.clear' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Results -->
+      <div *ngIf="searchResults.length > 0" class="card-lg">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <h2 class="text-heading">{{ 'offlineSearch.searchResults' | translate: { count: searchResults.length } }}</h2>
+          <!-- Local Search Input -->
+          <div class="relative flex-1 md:max-w-md">
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (input)="filterResults()"
+              placeholder="{{ 'user.searchInResults' | translate }}"
+              class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+            <app-icon name="search" size="20" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></app-icon>
+          </div>
+        </div>
+        
+        <div *ngIf="filteredResults.length === 0 && searchQuery" class="text-center py-8 text-gray-500">
+          {{ 'user.noSearchResults' | translate }}
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div *ngFor="let result of filteredResults" class="result-card cursor-pointer" (click)="showImageDetails(result)">
+            <div class="result-image-wrapper">
+              <img
+                [src]="result.imageData || '/assets/placeholder.jpg'"
+                [alt]="result.title"
+                class="result-image"
+                (error)="$any($event.target).src='/assets/placeholder.jpg'"
+              />
+              <div class="result-distance-badge">
+                {{ 'offlineSearch.distance' | translate: { distance: result.distance } }}
+              </div>
+            </div>
+            <div class="result-info">
+              <h3 class="result-title">{{ result.title }}</h3>
+              <p class="result-description" *ngIf="result.description">{{ result.description }}</p>
+              <p class="result-category" *ngIf="result.category">{{ result.category }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</app-offline-search-layout>
+
+<!-- Image Detail Modal -->
+<app-image-detail-modal
+  [isOpen]="showImageDetail"
+  [image]="selectedImageDetail"
+  [imageUrl]="selectedImageDetailUrl"
+  (closeModal)="closeImageDetail()"
+></app-image-detail-modal>
