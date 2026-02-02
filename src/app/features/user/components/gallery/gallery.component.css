@@ -1,103 +1,42 @@
-/* Gallery Header */
 .gallery-header {
   margin-bottom: 2.5rem;
 }
 
-.header-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.header-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.create-folder-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-primary-600);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  align-self: flex-start;
-}
-
-.create-folder-btn:hover {
-  background: var(--color-primary-700);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.create-folder-btn:active {
-  transform: translateY(0);
-}
-
-.header-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-gray-900);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.page-subtitle {
-  font-size: 1rem;
-  color: var(--color-gray-600);
-  margin: 0;
-}
-
 .search-container {
-  max-width: 100%;
+  margin-bottom: 1.5rem;
 }
 
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 600px;
-  background: var(--color-white);
-  border: 2px solid var(--color-gray-200);
-  border-radius: 16px;
-  padding: 0.75rem 1rem;
-  transition: all 0.2s ease;
-}
-
-.search-wrapper:focus-within {
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 4px var(--color-primary-100);
 }
 
 .search-icon {
+  position: absolute;
+  inset-inline-end: 1rem;
   color: var(--color-gray-400);
-  margin-right: 0.75rem;
-  flex-shrink: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .search-input {
-  flex: 1;
-  border: none;
-  outline: none;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  padding-inline-end: 3rem;
+  border: 2px solid var(--color-gray-200);
+  border-radius: 12px;
   font-size: 1rem;
+  transition: all 0.2s;
+  background: var(--color-gray-50);
   color: var(--color-gray-900);
-  background: transparent;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px var(--color-primary-100);
 }
 
 .search-input::placeholder {
@@ -321,10 +260,13 @@
 
 .folder-arrow {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  bottom: 1.5rem;
+  inset-inline-end: 1.5rem;
   color: var(--color-gray-400);
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .folder-card:hover .folder-arrow {

@@ -1,47 +1,49 @@
 <div class="container-main">
   <!-- Folder Header -->
-  <div class="folder-header">
-    <button (click)="goBack()" class="back-button">
-      <app-icon name="arrow-left" size="20"></app-icon>
+  <div class="mb-6">
+    <button (click)="goBack()" class="btn-secondary btn-secondary-sm mb-4 flex items-center gap-2">
+      <app-icon name="arrow-left" size="18"></app-icon>
       <span>{{ 'common.back' | translate }}</span>
     </button>
     
-    <div *ngIf="folder()" class="folder-info">
-      <div class="folder-icon-large">
-        <app-icon name="folder" size="32"></app-icon>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+      <div *ngIf="folder()" class="flex items-center gap-3">
+        <div class="folder-detail-icon-wrapper">
+          <app-icon name="folder" size="24" class="folder-icon"></app-icon>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">{{ folder()!.name }}</h1>
+          <p *ngIf="folder()!.description" class="text-gray-600 mt-1 text-sm">{{ folder()!.description }}</p>
+        </div>
       </div>
-      <div class="folder-details">
-        <h1 class="folder-title">{{ folder()!.name }}</h1>
-        <p *ngIf="folder()!.description" class="folder-description">{{ folder()!.description }}</p>
-        <div class="folder-stats">
-          <span class="stat-badge">
-            <app-icon name="image" size="16"></app-icon>
-            {{ total() }} {{ 'user.images' | translate }}
-          </span>
+      <div class="flex gap-2">
+        <div class="stat-badge bg-gray-50 px-3 py-1 rounded-lg flex items-center gap-2 border border-gray-100">
+          <app-icon name="image" size="16" class="text-primary-600"></app-icon>
+          <span class="text-sm font-medium text-gray-700">{{ total() }} {{ 'user.images' | translate }}</span>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Search Bar -->
-  <div class="search-section">
-    <div class="search-wrapper">
-      <app-icon name="search" size="20" class="search-icon"></app-icon>
-      <input
-        type="text"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event); onSearchInput()"
-        [placeholder]="'user.searchImages' | translate"
-        class="search-input"
-      />
-      <button
-        *ngIf="searchTerm()"
-        (click)="clearSearch()"
-        class="clear-search-btn"
-        [attr.aria-label]="'common.clear' | translate"
-      >
-        <app-icon name="x" size="16"></app-icon>
-      </button>
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event); onSearchInput()"
+          [placeholder]="'user.searchImages' | translate"
+          class="search-input"
+        />
+        <app-icon name="search" size="20" class="search-icon"></app-icon>
+        <button
+          *ngIf="searchTerm()"
+          (click)="clearSearch()"
+          class="clear-search-btn"
+          [attr.aria-label]="'common.clear' | translate"
+        >
+          <app-icon name="x" size="16"></app-icon>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -63,24 +65,42 @@
   </div>
 
   <!-- Images Grid -->
-  <div *ngIf="!isLoading() && images().length > 0" class="images-grid">
+  <div *ngIf="!isLoading() && images().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <div
       *ngFor="let image of images(); trackBy: trackById"
-      class="image-card"
+      class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition relative cursor-pointer flex flex-col"
       (click)="showImageDetails(image)"
     >
-      <div class="image-container">
+      <div class="bg-gray-100 h-48 flex items-center justify-center overflow-hidden">
         <img
           [src]="getImageUrl(image)"
           [alt]="image.title"
-          class="gallery-image"
+          class="max-h-full max-w-full object-contain"
           (error)="onImageError($event)"
         />
-        <div class="image-overlay">
-          <div class="image-info">
-            <h3 class="image-title">{{ image.title }}</h3>
-            <p *ngIf="image.category" class="image-category">{{ image.category }}</p>
-          </div>
+      </div>
+      <div class="p-3 md:p-4 flex-1 flex flex-col">
+        <h3 class="font-semibold text-gray-800 mb-2 break-words" [title]="image.title">
+          {{ image.title }}
+        </h3>
+        <p *ngIf="image.category" class="text-xs text-gray-500 mb-2 break-words">
+          {{ 'admin.category' | translate }}: {{ image.category }}
+        </p>
+        <p *ngIf="image.description" class="text-sm text-gray-600 mb-3 line-clamp-2 break-words">
+          {{ image.description }}
+        </p>
+        
+        <div class="mt-auto pt-2">
+          <button *ngIf="image.has_catalog" (click)="downloadCatalog(image); $event.stopPropagation()"
+            class="w-full btn-primary btn-primary-sm flex items-center justify-center gap-1">
+            <app-icon name="download" size="14"></app-icon>
+            <span>{{ 'user.downloadCatalog' | translate }}</span>
+          </button>
+          <button *ngIf="!image.has_catalog" (click)="showImageDetails(image)"
+            class="w-full btn-secondary btn-secondary-sm flex items-center justify-center gap-1">
+            <app-icon name="image" size="14"></app-icon>
+            <span>{{ 'common.viewDetails' | translate }}</span>
+          </button>
         </div>
       </div>
     </div>

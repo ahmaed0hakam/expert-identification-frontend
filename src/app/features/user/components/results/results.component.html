@@ -67,99 +67,66 @@
         {{ 'user.noSearchResults' | translate }}
       </div>
 
-      <div *ngFor="let result of filteredResults; let i = index"
-        class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
-        (click)="showImageDetails(result)">
-        <div class="flex flex-col md:flex-row">
-          <!-- Image -->
-          <div class="md:w-1/3 bg-gray-100 flex items-center justify-center p-4">
-            <img [src]="getImageUrl(result)" [alt]="result.title" class="max-h-64 w-full object-contain"
-              (error)="onImageError($event)" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let result of filteredResults; let i = index"
+          class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition relative cursor-pointer flex flex-col"
+          (click)="showImageDetails(result)">
+          
+          <!-- Image Preview -->
+          <div class="bg-gray-100 h-48 flex items-center justify-center overflow-hidden relative">
+            <img [src]="getImageUrl(result)" [alt]="result.title" 
+              class="max-h-full max-w-full object-contain" (error)="onImageError($event)" />
+            
           </div>
-
-          <!-- Details -->
-          <div class="md:w-2/3 p-6">
-            <div class="flex items-start justify-between mb-4">
-              <div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ result.title }}</h2>
-                <p class="text-sm text-gray-500 mb-1" *ngIf="result.category">
-                  {{ 'admin.category' | translate }}: <span class="font-semibold">{{ result.category }}</span>
-                </p>
-              </div>
-              <div class="text-right">
-                <div class="text-3xl font-bold" style="color: var(--color-primary-600);">{{ result.accuracy_score }}%
-                </div>
-                <div class="text-xs text-gray-500">{{ 'user.confidence' | translate }}</div>
+          <!-- Card Details -->
+          <div class="p-3 md:p-4 flex-1 flex flex-col">
+            <div class="flex justify-between items-start mb-2 gap-2">
+              <h3 class="font-semibold text-gray-800 break-words flex-1" [title]="result.title">
+                {{ result.title }}
+              </h3>
+              <div class="accuracy-badge text-[10px] shrink-0" [ngClass]="getAccuracyColor(result.accuracy_score)">
+                {{ result.accuracy_score }}%
               </div>
             </div>
 
-            <!-- Progress Bar -->
-            <div class="mb-4">
-              <div class="progress-bar">
+            <p *ngIf="result.category" class="text-xs text-gray-500 mb-2 break-words">
+              {{ 'admin.category' | translate }}: {{ result.category }}
+            </p>
+
+            <!-- Progress Bar (Compact) -->
+            <div class="mb-3">
+              <div class="progress-bar-sm">
                 <div class="progress-fill" [style.width.%]="result.accuracy_score"
                   [ngClass]="getAccuracyColor(result.accuracy_score)"></div>
               </div>
             </div>
 
-            <!-- Catalog Section -->
-            <div *ngIf="result.has_catalog" class="mb-4 p-3 rounded-lg border"
-              style="background-color: var(--color-primary-50); border-color: var(--color-primary-200);">
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2 flex-1 min-w-0">
-                  <app-icon name="file" size="20" style="color: var(--color-primary-600);"
-                    class="flex-shrink-0"></app-icon>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold mb-1" style="color: var(--color-primary-800);">{{
-                      'user.catalogAvailable' | translate }}</p>
-                    <p class="text-xs truncate" style="color: var(--color-primary-700);" *ngIf="result.catalog_filename"
-                      [title]="result.catalog_filename">
-                      {{ result.catalog_filename }}
-                    </p>
-                  </div>
-                </div>
-                <button (click)="downloadCatalog(result); $event.stopPropagation()"
-                  class="btn-primary btn-primary-sm flex items-center gap-1 flex-shrink-0"
-                  [title]="result.catalog_filename || 'Download Catalog'">
-                  <app-icon name="download" size="16"></app-icon>
-                  <span>{{ 'user.downloadCatalog' | translate }}</span>
-                </button>
-              </div>
-            </div>
-
             <!-- Description -->
-            <div *ngIf="result.description" class="mb-4">
-              <h3 class="text-sm font-semibold text-gray-700 mb-2">{{ 'admin.description' | translate }}</h3>
-              <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">{{ result.description }}</p>
+            <p *ngIf="result.description" class="text-sm text-gray-600 mb-3 line-clamp-2 break-words">
+              {{ result.description }}
+            </p>
+
+            <!-- AI Analysis (Compact) -->
+            <div *ngIf="result.ai_reasoning" class="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100 text-[10px] leading-relaxed text-gray-700 line-clamp-3">
+              <div class="flex items-center gap-1 mb-1 font-semibold text-gray-600">
+                <app-icon name="info" size="10"></app-icon>
+                {{ 'user.aiAnalysis' | translate }}
+              </div>
+              {{ result.ai_reasoning }}
             </div>
 
-            <!-- AI Reasoning -->
-            <div *ngIf="result.ai_reasoning" class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div class="flex items-start gap-2 mb-1">
-                <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
-                  </path>
-                </svg>
-                <h3 class="text-xs font-semibold text-gray-600">{{ 'user.aiAnalysis' | translate }}</h3>
-              </div>
-              <p class="text-xs text-gray-700 leading-relaxed">{{ result.ai_reasoning }}</p>
-            </div>
-
-            <!-- Rank Badge and Actions -->
-            <div class="flex items-center gap-2 flex-wrap justify-between">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" [ngClass]="{
-                        'bg-yellow-100 text-yellow-800': i === 0,
-                        'bg-gray-100 text-gray-800': i > 0
-                      }">
-                  {{ 'user.match' | translate: {num: i + 1} }}
-                </span>
-                <span *ngIf="result.ai_confidence" class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded">
-                  {{ 'user.aiConfidence' | translate }}: {{ (result.ai_confidence * 100).toFixed(0) }}%
-                </span>
-              </div>
-
+            <!-- Catalog Download (If Available) -->
+            <div class="mt-auto pt-2">
+              <button *ngIf="result.has_catalog" (click)="downloadCatalog(result); $event.stopPropagation()"
+                class="w-full btn-primary btn-primary-sm flex items-center justify-center gap-1">
+                <app-icon name="download" size="14"></app-icon>
+                <span>{{ 'user.downloadCatalog' | translate }}</span>
+              </button>
+              <button *ngIf="!result.has_catalog" (click)="showImageDetails(result)"
+                class="w-full btn-secondary btn-secondary-sm flex items-center justify-center gap-1">
+                <app-icon name="image" size="14"></app-icon>
+                <span>{{ 'common.viewDetails' | translate }}</span>
+              </button>
             </div>
           </div>
         </div>

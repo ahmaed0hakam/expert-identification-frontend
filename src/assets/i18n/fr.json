@@ -22,7 +22,8 @@
     "previous": "Précédent",
     "page": "Page",
     "of": "de",
-    "creating": "Création en cours"
+    "creating": "Création en cours",
+    "viewDetails": "Voir les détails"
   },
   "auth": {
     "login": "Connexion",
@@ -195,7 +196,13 @@
     "folder": "Dossier",
     "searchInFolder": "Rechercher dans le dossier",
     "allFolders": "Tous les dossiers",
-    "folderSelectionHint": "Sélectionnez le dossier pour télécharger les images"
+    "folderSelectionHint": "Sélectionnez le dossier pour télécharger les images",
+    "browseFolders": "Parcourir les dossiers",
+    "searchFolders": "Rechercher dans les dossiers",
+    "totalFolders": "{{count}} dossiers",
+    "noFolders": "Aucun dossier",
+    "folderDetail": "Détail du dossier",
+    "searchImages": "Rechercher dans les images"
   },
   "errors": {
     "uploadFailed": "Échec du téléchargement. Veuillez réessayer.",

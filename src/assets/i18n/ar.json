@@ -22,7 +22,8 @@
     "previous": "السابق",
     "page": "الصفحة",
     "of": "من",
-    "creating": "جاري الإنشاء"
+    "creating": "جاري الإنشاء",
+    "viewDetails": "عرض التفاصيل"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -199,7 +200,13 @@
     "folder": "المجلد",
     "searchInFolder": "البحث في المجلد",
     "allFolders": "جميع المجلدات",
-    "folderSelectionHint": "اختر المجلد لرفع الصور"
+    "folderSelectionHint": "اختر المجلد لرفع الصور",
+    "browseFolders": "تصفح المجلدات",
+    "searchFolders": "البحث في المجلدات",
+    "totalFolders": "{{count}} مجلد",
+    "noFolders": "لا توجد مجلدات",
+    "folderDetail": "تفاصيل المجلد ",
+    "searchImages": "البحث في الصور"
   },
   "errors": {
     "uploadFailed": "فشل الرفع. يرجى المحاولة مرة أخرى.",

@@ -10,7 +10,7 @@ import { ImageDetailModalComponent, ImageDetail } from '../../../../shared/compo
 import { HttpClient } from '@angular/common/http';
 import { Subject, firstValueFrom, EMPTY, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap, catchError, startWith } from 'rxjs/operators';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 
 interface Image {
   id: number;
@@ -83,7 +83,7 @@ export class FolderDetailComponent implements OnInit, OnDestroy {
 
   // Observable for images data
   private imagesData$ = combineLatest([
-    this.folderId,
+    toObservable(this.folderId),
     this.debouncedSearch$,
     this.pageSubject.pipe(startWith(0), distinctUntilChanged())
   ]).pipe(
@@ -144,7 +144,7 @@ export class FolderDetailComponent implements OnInit, OnDestroy {
         this.folderId.set(id);
         this.pageSubject.next(0);
       } else {
-        this.router.navigate(['/gallery']);
+        this.router.navigate(['/search/gallery']);
       }
     });
   }
@@ -235,6 +235,28 @@ export class FolderDetailComponent implements OnInit, OnDestroy {
     this.showImageDetail.set(false);
     this.selectedImageDetail.set(null);
     this.selectedImageDetailUrl.set('');
+  }
+
+  async downloadCatalog(image: Image) {
+    try {
+      this.toastService.info(
+        await firstValueFrom(this.translate.get('common.processing'))
+      );
+      
+      const blob = await firstValueFrom(this.apiService.downloadCatalog(image.id));
+      const filename = image.catalog_filename || `${image.title}_catalog.pdf`;
+      
+      this.apiService.downloadFile(blob, filename);
+    } catch (error) {
+      console.error('Failed to download catalog:', error);
+      this.toastService.error(
+        await firstValueFrom(this.translate.get('errors.downloadFailed'))
+      );
+    }
+  }
+
+  getCatalogDownloadHandler() {
+    return (image: any) => this.downloadCatalog(image);
   }
 
   goToPage(page: number) {

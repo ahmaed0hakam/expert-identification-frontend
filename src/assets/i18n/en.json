@@ -22,7 +22,8 @@
     "previous": "Previous",
     "page": "Page",
     "of": "of",
-    "creating": "Creating"
+    "creating": "Creating",
+    "viewDetails": "View Details"
   },
   "auth": {
     "login": "Sign In",
@@ -198,7 +199,13 @@
     "folder": "Folder",
     "searchInFolder": "Search in folder",
     "allFolders": "All folders",
-    "folderSelectionHint": "Select the folder to upload the images"
+    "folderSelectionHint": "Select the folder to upload the images",
+    "browseFolders": "Browse Folders",
+    "searchFolders": "Search in folders",
+    "totalFolders": "{{count}} folders",
+    "noFolders": "No folders",
+    "folderDetail": "Folder Detail",
+    "searchImages": "Search in images"
   },
   "errors": {
     "uploadFailed": "Upload failed. Please try again.",

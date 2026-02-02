@@ -1,50 +1,50 @@
 <div class="container-main">
   <!-- Gallery Header with Search -->
-  <div class="gallery-header">
-    <div class="header-content">
-      <div class="header-top">
-        <div class="header-title">
-          <h1 class="page-title">{{ 'user.gallery' | translate }}</h1>
-          <p class="page-subtitle">{{ 'user.browseCollections' | translate }}</p>
-        </div>
-        <button
-          (click)="showCreateFolderModal.set(true)"
-          class="create-folder-btn"
-        >
-          <app-icon name="plus" size="20"></app-icon>
-          <span>{{ 'admin.createFolder' | translate }}</span>
-        </button>
+  <div class="gallery-header mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+      <div class="header-title">
+        <h1 class="text-2xl font-bold text-gray-900">{{ 'user.gallery' | translate }}</h1>
+        <p class="text-gray-600 mt-1">{{ 'user.browseFolders' | translate }}</p>
       </div>
+      <!-- <button
+        (click)="showCreateFolderModal.set(true)"
+        class="create-folder-btn btn-primary btn-primary-sm"
+      >
+        <app-icon name="plus" size="18"></app-icon>
+        <span>{{ 'admin.createFolder' | translate }}</span>
+      </button> -->
+    </div>
+
+    <!-- Search Bar -->
     <div class="search-container">
       <div class="search-wrapper">
-          <app-icon name="search" size="20" class="search-icon"></app-icon>
         <input
           type="text"
           [ngModel]="searchTerm()"
           (ngModelChange)="searchTerm.set($event); onSearchInput()"
-            [placeholder]="'user.searchFolders' | translate"
+          [placeholder]="'user.searchFolders' | translate"
           class="search-input"
         />
-          <button
-            *ngIf="searchTerm()"
-            (click)="clearSearch()"
-            class="clear-search-btn"
-            [attr.aria-label]="'common.clear' | translate"
-          >
-            <app-icon name="x" size="16"></app-icon>
-          </button>
-        </div>
+        <app-icon name="search" size="20" class="search-icon"></app-icon>
+        <button
+          *ngIf="searchTerm()"
+          (click)="clearSearch()"
+          class="clear-search-btn"
+          [attr.aria-label]="'common.clear' | translate"
+        >
+          <app-icon name="x" size="16"></app-icon>
+        </button>
       </div>
     </div>
+  </div>
     <div class="gallery-stats">
       <div class="stat-item">
         <app-icon name="folder" size="18" class="stat-icon"></app-icon>
         <span class="stat-text">
           {{ 'user.totalFolders' | translate: {count: total()} }}
-      </span>
+        </span>
       </div>
     </div>
-  </div>
 
   <!-- Loading State -->
   <div *ngIf="isLoading()" class="loading-container">
